@@ -2,9 +2,12 @@ use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream, Shutdown};
 
 fn handle_client(mut stream: TcpStream) {
-    let hello_world = String::from("HTTP/1.1 200 OK\n\nHello World!");
+    let header = String::from("HTTP/1.1 200 OK");
+    let body = String::from("Hello world!");
 
-    stream.write(hello_world.as_bytes()).unwrap();
+    let response = format!("{}\n\n{}", header, body);
+
+    stream.write(response.as_bytes()).unwrap();
     stream.shutdown(Shutdown::Both).unwrap();
 }
 
