@@ -1,4 +1,6 @@
 use std::str;
+use std::path::Path;
+use std::fs;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream, Shutdown};
 
@@ -30,7 +32,9 @@ fn handle_client(mut stream: TcpStream) {
     println!("{}", request);
 
     let header = String::from("HTTP/1.1 200 OK");
-    let body = String::from("Hello world!");
+
+    let path = Path::new("example/index.html");
+    let body = fs::read_to_string(path).expect("Failed to read file");
 
     let response = format!("{}\n\n{}", header, body);
 
