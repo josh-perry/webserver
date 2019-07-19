@@ -7,7 +7,12 @@ use std::net::{TcpListener, TcpStream, Shutdown};
 
 const BUFFER_SIZE: usize = 1024;
 
-fn get_request(stream: &mut TcpStream) -> std::string::String {
+struct Request {
+    body: String,
+    headers: HashMap<String, String>
+}
+
+fn get_request(stream: &mut TcpStream) -> Request {
     let mut buf = [0u8; BUFFER_SIZE];
 
     loop {
@@ -32,15 +37,17 @@ fn get_request(stream: &mut TcpStream) -> std::string::String {
         }
 
         let split_header: Vec<&str> = line.splitn(2, ":").collect();
-        headers.insert(split_header[0].trim(), split_header[1].trim());
+        headers.insert(split_header[0].trim().to_string(), split_header[1].trim().to_string());
     }
 
-    request.to_string()
+    Request {
+        body: request.to_string(),
+        headers: headers
+    }
 }
 
 fn handle_client(mut stream: TcpStream) {
     let request = get_request(&mut stream);
-    println!("{}", request);
 
     let header = String::from("HTTP/1.1 200 OK");
 
