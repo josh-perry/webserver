@@ -54,7 +54,7 @@ fn handle_client(mut stream: TcpStream) {
 }
 
 fn main() {
-    let ip = "127.0.0.1";
+    let ip = "0.0.0.0";
     let port = 8080;
 
     let listener = TcpListener::bind(format!("{}:{}", ip, port)).unwrap();
