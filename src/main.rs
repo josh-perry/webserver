@@ -2,6 +2,7 @@ use std::str;
 use std::path::Path;
 use std::fs;
 use std::io::prelude::*;
+use std::collections::HashMap;
 use std::net::{TcpListener, TcpStream, Shutdown};
 
 const BUFFER_SIZE: usize = 1024;
@@ -23,6 +24,16 @@ fn get_request(stream: &mut TcpStream) -> std::string::String {
     }
 
     let request = str::from_utf8(&buf).unwrap();
+    let mut headers = HashMap::new();
+
+    for line in request.lines() {
+        if !line.contains(":") {
+            continue;
+        }
+
+        let split_header: Vec<&str> = line.splitn(2, ":").collect();
+        headers.insert(split_header[0].trim(), split_header[1].trim());
+    }
 
     request.to_string()
 }
