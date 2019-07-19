@@ -1,7 +1,34 @@
+use std::str;
 use std::io::prelude::*;
 use std::net::{TcpListener, TcpStream, Shutdown};
 
+const BUFFER_SIZE: usize = 1024;
+
+fn get_request(stream: &mut TcpStream) -> std::string::String {
+    let mut buf = [0u8; BUFFER_SIZE];
+
+    loop {
+        match stream.read(&mut buf) {
+            Ok(size) => {
+                if size < BUFFER_SIZE {
+                    break
+                }
+            }
+            Err(e) => {
+                println!("Error reading stream: {}", e);
+            }
+        }
+    }
+
+    let request = str::from_utf8(&buf).unwrap();
+
+    request.to_string()
+}
+
 fn handle_client(mut stream: TcpStream) {
+    let request = get_request(&mut stream);
+    println!("{}", request);
+
     let header = String::from("HTTP/1.1 200 OK");
     let body = String::from("Hello world!");
 
