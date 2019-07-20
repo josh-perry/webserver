@@ -1,41 +1,16 @@
 use std::str;
 use std::path::Path;
 use std::fs;
-use std::fmt;
 use std::io::prelude::*;
 use std::collections::HashMap;
 use std::net::{TcpListener, TcpStream, Shutdown};
 
+mod verb;
+mod request;
+
 const BUFFER_SIZE: usize = 1024;
 
-#[derive(Debug)]
-enum Verb {
-    GET,
-    //HEAD,
-    POST,
-    //PUT,
-    //DELETE,
-    //CONNECT,
-    //OPTIONS,
-    //TRACE,
-    //PATCH
-}
-
-#[derive(Debug)]
-struct Request {
-    verb: Verb,
-    path: String,
-    body: String,
-    headers: HashMap<String, String>
-}
-
-impl fmt::Display for Request {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:#?}", self)
-    }
-}
-
-fn get_request(stream: &mut TcpStream) -> Request {
+fn get_request(stream: &mut TcpStream) -> request::Request {
     let mut buf = [0u8; BUFFER_SIZE];
 
     loop {
@@ -67,8 +42,8 @@ fn get_request(stream: &mut TcpStream) -> Request {
         .unwrap();
 
     let verb = match verb_word {
-        "GET" => Verb::GET,
-        "POST" => Verb::POST,
+        "GET" => verb::Verb::GET,
+        "POST" => verb::Verb::POST,
         &_ => panic!("No verb!")
     };
 
@@ -85,7 +60,7 @@ fn get_request(stream: &mut TcpStream) -> Request {
         headers.insert(split_header[0].trim().to_string(), split_header[1].trim().to_string());
     }
 
-    Request {
+    request::Request {
         body: request.trim_matches(char::from(0)).to_string(),
         headers: headers,
         verb: verb,
