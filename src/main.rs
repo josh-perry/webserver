@@ -12,7 +12,7 @@ const BUFFER_SIZE: usize = 1024;
 enum Verb {
     GET,
     //HEAD,
-    //POST,
+    POST,
     //PUT,
     //DELETE,
     //CONNECT,
@@ -53,21 +53,32 @@ fn get_request(stream: &mut TcpStream) -> Request {
 
     let request = str::from_utf8(&buf).unwrap();
     let mut headers = HashMap::new();
-    let request_lines = request.lines();
+    let mut request_lines = request.lines();
 
-    let mut verb = Verb::GET;
-    let mut path = "".to_string();
+    let line = request_lines
+        .next()
+        .unwrap()
+        .to_string();
 
+    // Get verb and path
+    let verb_word = line
+        .split_whitespace()
+        .next()
+        .unwrap();
+
+    let verb = match verb_word {
+        "GET" => Verb::GET,
+        "POST" => Verb::POST,
+        &_ => panic!("No verb!")
+    };
+
+    let split_line: Vec<&str> = line.splitn(3, " ").collect();
+    let path = split_line[1].trim().to_string();
+
+    // Get headers
     for line in request_lines {
         if !line.contains(":") {
-            if line.starts_with("GET") {
-                let split_line: Vec<&str> = line.splitn(3, " ").collect();
-
-                verb = Verb::GET;
-                path = split_line[1].trim().to_string();
-            }
-
-            continue;
+            continue
         }
 
         let split_header: Vec<&str> = line.splitn(2, ":").collect();
